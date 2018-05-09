@@ -8,34 +8,41 @@
         Title="MainWindow" Height="567.1" Width="1088.255">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1202*"/>
-            <ColumnDefinition Width="41*"/>
+            <ColumnDefinition Width="77*"/>
+            <ColumnDefinition Width="97*"/>
+            <ColumnDefinition Width="6*"/>
         </Grid.ColumnDefinitions>
-        <Menu Margin="0,0,0,510" Grid.ColumnSpan="2">
+        <Menu Margin="0,0,0,510" Grid.ColumnSpan="3">
             <MenuItem Header="Load" Click="loadBtn_Click"/>
             <MenuItem Header="Save" Click="saveBtn_Click"/>
         </Menu>
-        <Canvas x:Name="canvas" ClipToBounds="True" Background="#FFEEECEC" Height="500" Width="700" VerticalAlignment="Bottom" Margin="10,0,492.442,5" MouseDown="canvas_MouseDown" Loaded="canvas_Loaded" MouseMove="canvas_MouseMove" MouseUp="canvas_MouseUp" MouseEnter="canvas_MouseEnter" MouseLeave="canvas_MouseLeave" />
-        <Button Content="-" HorizontalAlignment="Left" Margin="732,506,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="1.76,1.9" Click="stepDec_Click"/>
-        <Button x:Name="stepInc" Content="+" HorizontalAlignment="Left" Margin="854,506,0,0" VerticalAlignment="Top" Width="75" Click="stepInc_Click"/>
-        <Button Content="Add" HorizontalAlignment="Left" Margin="749,397,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
-        <Label Content="Prameter
-:" HorizontalAlignment="Left" Margin="732,350,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="txtbxParameter" HorizontalAlignment="Left" Height="21" Margin="796,355,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="45"/>
-        <DataGrid x:Name="dgrdPoints" HorizontalAlignment="Left" Height="319" Margin="732,31,0,0" VerticalAlignment="Top" Width="110
-                  " AutoGenerateColumns="False" CanUserAddRows="False" RowDetailsVisibilityMode="Visible" ItemsSource="{Binding collection}" MinColumnWidth="107" MaxColumnWidth="107">
+        <Canvas x:Name="canvas" ClipToBounds="True" Background="#FFEEECEC" Height="500" Width="700" VerticalAlignment="Bottom" Margin="10,0,334,5" MouseDown="canvas_MouseDown" Loaded="canvas_Loaded" MouseMove="canvas_MouseMove" MouseUp="canvas_MouseUp" MouseEnter="canvas_MouseEnter" MouseLeave="canvas_MouseLeave" Grid.ColumnSpan="2" />
+        <Button Content="-" HorizontalAlignment="Left" Margin="270,506,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="1.76,1.9" Click="stepDec_Click" Grid.Column="1"/>
+        <Button x:Name="stepInc" Content="+" HorizontalAlignment="Left" Margin="392,506,0,0" VerticalAlignment="Top" Width="75" Click="stepInc_Click" Grid.Column="1"/>
+        <Button x:Name="btnAdd" Content="Add" HorizontalAlignment="Left" Margin="283,331,0,0" VerticalAlignment="Top" Width="62" Click="btnAdd_Click" Grid.Column="1"/>
+        <Label x:Name="lblAddX" Content="X" HorizontalAlignment="Left" Margin="283,300,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+        <TextBox x:Name="txtbxCoordX" HorizontalAlignment="Left" Height="21" Margin="300,305,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="45" Grid.Column="1"/>
+        <DataGrid x:Name="dgrdPoints" HorizontalAlignment="Left" Height="211" Margin="283,89,0,0" VerticalAlignment="Top" Width="130" AutoGenerateColumns="False" CanUserAddRows="False" RowDetailsVisibilityMode="Visible" ItemsSource="{Binding collection}" MinColumnWidth="65" MaxColumnWidth="65" Loaded="dgrdPoints_Loaded" Grid.Column="1">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Parameters" Binding="{Binding Parameters}" SortMemberPath="Parameters"/>
+                <DataGridTextColumn Header="X" Binding="{Binding Path=X}" SortMemberPath="X"/>
+                <DataGridTextColumn Binding="{Binding Path=Y}" Header="Y" SortMemberPath="Y"/>
             </DataGrid.Columns>
         </DataGrid>
-        <Label Content="X:" HorizontalAlignment="Left" Margin="731,475,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="lblX" Content="Label" HorizontalAlignment="Left" Margin="775,475,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.066,0.404"/>
-        <Label Content="Y:" HorizontalAlignment="Left" Margin="849,475,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="lblY" Content="Label" HorizontalAlignment="Left" Margin="907,475,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.893,-0.404"/>
-        <ComboBox x:Name="cmbbxFunctions" HorizontalAlignment="Left" Margin="884,62,0,0" VerticalAlignment="Top" Width="120" IsReadOnly="True"/>
-        <ComboBox x:Name="cmbbxMethods" HorizontalAlignment="Left" Margin="884,139,0,0" VerticalAlignment="Top" Width="120"/>
-        <Label Content="Function" HorizontalAlignment="Left" Margin="884,31,0,0" VerticalAlignment="Top"/>
-        <Label Content="Method" HorizontalAlignment="Left" Margin="884,108,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="btnDoTask" Content="Do Task" HorizontalAlignment="Left" Margin="907,210,0,0" VerticalAlignment="Top" Width="75" Click="btnDoTask_Click"/>
+        <Label Content="X:" HorizontalAlignment="Left" Margin="269,475,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+        <Label x:Name="lblX" Content="Label" HorizontalAlignment="Left" Margin="313,475,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.066,0.404" Grid.Column="1"/>
+        <Label Content="Y:" HorizontalAlignment="Left" Margin="387,475,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+        <Label x:Name="lblY" Content="Label" HorizontalAlignment="Left" Margin="445,475,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.893,-0.404" Grid.Column="1"/>
+        <ComboBox x:Name="cmbbxFunctions" HorizontalAlignment="Left" Margin="423,115,0,0" VerticalAlignment="Top" Width="149" IsReadOnly="True" Grid.Column="1"/>
+        <ComboBox x:Name="cmbbxMethods" HorizontalAlignment="Left" Margin="270,62,0,0" VerticalAlignment="Top" Width="302" SelectionChanged="cmbbxMethods_SelectionChanged" Grid.Column="1"/>
+        <Label x:Name="lblFunction" Content="Function" HorizontalAlignment="Left" Margin="474,89,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+        <Label Content="Method" HorizontalAlignment="Left" Margin="401,31,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+        <Button x:Name="btnDoTask" Content="Do Task" HorizontalAlignment="Left" Margin="269,356,0,0" VerticalAlignment="Top" Width="302" Click="btnDoTask_Click" Grid.Column="1"/>
+        <Label x:Name="lblAddY" Content="Y" HorizontalAlignment="Left" Margin="350,300,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+        <TextBox x:Name="txtbxCoordY" HorizontalAlignment="Left" Height="21" Margin="367,305,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="45" Grid.Column="1"/>
+        <Button x:Name="btnDelete" Content="Delete" HorizontalAlignment="Left" Margin="351,331,0,0" VerticalAlignment="Top" Width="62" Click="btnDelete_Click" Grid.Column="1"/>
+        <TextBox x:Name="txtbxBorderFrom" HorizontalAlignment="Left" Height="21" Margin="444,173,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="45" Grid.Column="1"/>
+        <TextBox x:Name="txtbxBorderTo" HorizontalAlignment="Left" Height="21" Margin="511,173,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="45" Grid.Column="1"/>
+        <Label x:Name="lblBorders" Content="Borders" HorizontalAlignment="Left" Margin="474,142,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+        <Button x:Name="btnRefresh" Content="Refresh" HorizontalAlignment="Left" Margin="494,31,0,0" VerticalAlignment="Top" Width="62" Click="btnRefresh_Click" Grid.Column="1"/>
     </Grid>
 </Window>

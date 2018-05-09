@@ -7,9 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OOP", "OOP\OOP.csproj", "{F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interface", "Interface\Interface.csproj", "{03C858B3-54AF-4856-AEF9-A765B9127383}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Func1", "Func1\Func1.csproj", "{7758CEEC-2D00-4DB7-B876-6084EB2A1DB9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "x^2 + 3", "Func1\x^2 + 3.csproj", "{7758CEEC-2D00-4DB7-B876-6084EB2A1DB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Opt1", "Opt1\Opt1.csproj", "{3DDDD1E1-4808-48BF-BBDF-41760F4F30E1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FindMinimum", "Opt1\FindMinimum.csproj", "{3DDDD1E1-4808-48BF-BBDF-41760F4F30E1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interpolation", "Interpolation\Interpolation.csproj", "{D19A8595-3820-41A6-8585-1EC4750777F2}"
 EndProject

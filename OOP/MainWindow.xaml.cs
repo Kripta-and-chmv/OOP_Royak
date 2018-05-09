@@ -21,49 +21,52 @@ namespace WpfApp2
     /// </summary>
     public partial class MainWindow : Window
     {
-        public readonly List<IFunction> functions;
-        public readonly List<IOptimizator> optimizers;
+        public readonly Dictionary<string, IFunction> functions;
+        public readonly Dictionary<string, IOptimizator> optimizers;
+        List<Control> controls;
 
         public MainWindow()
         {
             InitializeComponent();
-            functions = new List<IFunction>();
-            optimizers = new List<IOptimizator>();
+            functions = new Dictionary<string, IFunction>();
+            optimizers = new Dictionary<string, IOptimizator>();
             getFunctionsOptimizers();
+            controls = new List<Control> { dgrdPoints, txtbxBorderFrom, txtbxBorderTo, txtbxCoordX, txtbxCoordY, cmbbxFunctions, btnAdd, btnDelete, lblFunction, lblBorders, lblAddX, lblAddY };
+            foreach (var ctrl in controls)
+                ctrl.Visibility = Visibility.Hidden;
         }
 
         public void getFunctionsOptimizers()
         {
-            string path = Assembly.GetEntryAssembly().Location;
-            path = path.Replace("OOP.exe", "");
-            string contentFolder = path + @"content\";
-
-            DirectoryInfo directory = new DirectoryInfo(contentFolder);//Assuming Test is your Folder
-            FileInfo[] functionDlls = directory.GetFiles("Func*.dll"); //Getting Text files
-            foreach (FileInfo file in functionDlls)
+            try
             {
-                var types = Assembly.LoadFrom(contentFolder + file.Name).GetTypes();
-                functions.Add((IFunction)Activator.CreateInstance(types[0]));
-            }
+                string path = Assembly.GetEntryAssembly().Location;
+                path = path.Replace("OOP.exe", "");
+                string contentFolder = path + @"content\";
 
-            FileInfo[] optimizerDlls = directory.GetFiles("Opt*.dll"); //Getting Text files
-            foreach (FileInfo file in optimizerDlls)
-            {
-                var types = Assembly.LoadFrom(contentFolder + file.Name).GetTypes();
-                optimizers.Add((IOptimizator)Activator.CreateInstance(types[0]));
-            }
+                DirectoryInfo directory = new DirectoryInfo(contentFolder);//Assuming Test is your Folder
+                FileInfo[] functionDlls = directory.GetFiles("Func*.dll"); //Getting Text files
+                foreach (FileInfo file in functionDlls)
+                {
+                    var types = Assembly.LoadFrom(contentFolder + file.Name).GetTypes();
+                    var func = (IFunction)Activator.CreateInstance(types[0]);
+                    functions.Add(func.Name, func);
+                }
 
-            var interpolation = optimizers[1];
-            interpolation.Points = new List<Tuple<double, double>> { new Tuple<double, double>(1, 1), new Tuple<double, double>(2, 2), new Tuple<double, double>(40, 40) };
-            var res2 = interpolation.Optimize();
-            var points = new List<Point>();
-            foreach(var point in res2)
+                FileInfo[] optimizerDlls = directory.GetFiles("Opt*.dll"); //Getting Text files
+                foreach (FileInfo file in optimizerDlls)
+                {
+                    var types = Assembly.LoadFrom(contentFolder + file.Name).GetTypes();
+                    var opt = (IOptimizator)Activator.CreateInstance(types[0]);
+                    optimizers.Add(opt.Name, opt);
+                }
+            } catch(Exception err)
             {
-                points.Add(new Point(point.Item1, point.Item2));
+                MessageBox.Show(err.ToString());
             }
         }
 
-        public class tableParameters
+        public class tablePoints
         {
             public double X { get; set; }
             public double Y { get; set; }
@@ -83,39 +86,12 @@ namespace WpfApp2
         Mouse mouse;
         int startObjectsAmount = 0;
 
-        private void canvas_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                mouse.Position = e.GetPosition(canvas);
-                mouse.IsPushed = true;
-                if (!mouse.IsMoveMode)
-                {
-                    var point = grid.fromPictureBoxToGrid(e.GetPosition(canvas));
-                    dgrdPoints.Items.Add(new tableParameters() { X = point.X, Y = point.Y });
-                }
-            }
-            else if (e.RightButton == MouseButtonState.Pressed)
-            {
-                mouse.IsMoveMode = !mouse.IsMoveMode;
-
-                if (mouse.IsMoveMode)
-                    this.Cursor = Cursors.Hand;
-                else
-                    this.Cursor = Cursors.Cross;
-            }
-        }
-
         private void canvas_Loaded(object sender, RoutedEventArgs e)
         {
             mouse = new Mouse();
             grid = new CustomGrid(canvas);
             grid.Draw(canvas);
             startObjectsAmount = canvas.Children.Count;
-            foreach (var function in Functions.All)
-                cmbbxFunctions.Items.Add(function);
-            foreach (var method in Methods.All)
-                cmbbxMethods.Items.Add(method);
         }
 
         private void canvas_MouseMove(object sender, MouseEventArgs e)
@@ -124,7 +100,7 @@ namespace WpfApp2
             lblX.Content = coords.X.ToString();
             lblY.Content = coords.Y.ToString();
 
-            if (mouse.IsPushed && mouse.IsMoveMode)
+            if (mouse.IsPushed)
             {
                 Point difference = pointsSubstraction(mouse.Position, e.GetPosition(canvas));
                 mouse.Position = e.GetPosition(canvas);
@@ -132,12 +108,30 @@ namespace WpfApp2
             }
         }
 
+        private void canvas_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                mouse.Position = e.GetPosition(canvas);
+                mouse.IsPushed = true;
+            }
+        }
+
         private void canvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Released)
-            {
                 mouse.IsPushed = false;
-            }
+        }
+
+        private void canvas_MouseEnter(object sender, MouseEventArgs e)
+        {
+            mouse.IsPushed = false;
+            this.Cursor = Cursors.Hand;
+        }
+
+        private void canvas_MouseLeave(object sender, MouseEventArgs e)
+        {
+            this.Cursor = Cursors.Arrow;
         }
 
         private void stepDec_Click(object sender, RoutedEventArgs e)
@@ -246,46 +240,16 @@ namespace WpfApp2
 
         private void dgrdPoints_LoadingRow(object sender, DataGridRowEventArgs e)
         {
-            //if (dgrdPoints.Items.Count < 2)
-            //    return;
-            //var rows = dgrdPoints.Items.OfType<tablePoints>().ToList();
-            //rows.Sort((x, y) => x.X.CompareTo(y.X));
+            var rows = dgrdPoints.Items.OfType<tablePoints>().ToList();
+            rows.Sort((x, y) => x.X.CompareTo(y.X));
 
-            //canvas.Children.RemoveRange(startObjectsAmount, canvas.Children.Count);
-
-            //for (int i = 1; i < rows.Count; i++)
-            //{
-            //    var start = grid.fromGridToPictureBox(new Point(rows[i - 1].X, rows[i - 1].Y));
-            //    var end = grid.fromGridToPictureBox(new Point(rows[i].X, rows[i].Y));
-            //    canvas.Children.Add(new Line()
-            //    {
-            //        Name = "Graph",
-            //        Stroke = Brushes.Red,
-            //        StrokeThickness = 4,
-            //        X1 = start.X,
-            //        Y1 = start.Y,
-            //        X2 = end.X,
-            //        Y2 = end.Y
-            //    });
-            //}
-        }
-
-        private void canvas_MouseEnter(object sender, MouseEventArgs e)
-        {
-            mouse.IsMoveMode = true;
-            mouse.IsPushed = false;
-            this.Cursor = Cursors.Hand;
-        }
-
-        private void canvas_MouseLeave(object sender, MouseEventArgs e)
-        {
-            this.Cursor = Cursors.Arrow;
+            canvas.Children.RemoveRange(startObjectsAmount, canvas.Children.Count);
         }
 
         private void saveBtn_Click(object sender, RoutedEventArgs e)
         {
             string fileText = "";
-            var rows = dgrdPoints.Items.OfType<tableParameters>().ToList();
+            var rows = dgrdPoints.Items.OfType<tablePoints>().ToList();
 
             foreach (var row in rows)
                 fileText += row.X + " " + row.Y + "\n";
@@ -320,7 +284,7 @@ namespace WpfApp2
                                 double x, y;
                                 double.TryParse(coord[0], out x);
                                 double.TryParse(coord[1], out y);
-                                dgrdPoints.Items.Add(new tableParameters() { X = x, Y = y });
+                                dgrdPoints.Items.Add(new tablePoints() { X = x, Y = y });
                             }
                             catch
                             {
@@ -334,14 +298,13 @@ namespace WpfApp2
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void btnAdd_Click(object sender, RoutedEventArgs e)
         {
-            //double x, y;
-            //if (!double.TryParse(txtbxCoordX.Text, out x))
-            //    return;
-            //if (!double.TryParse(txtbxCoordY.Text, out y))
-            //    return;
-            //dgrdPoints.Items.Add(new tableParameters() { X = x, Y = y });
+            double x, y;
+            if (!double.TryParse(txtbxCoordX.Text, out x) || !double.TryParse(txtbxCoordY.Text, out y))
+                return;
+
+            dgrdPoints.Items.Add(new tablePoints() { X = x, Y = y });
         }
 
         private void drawing(List<Point> rows)
@@ -365,16 +328,86 @@ namespace WpfApp2
             }
         }
 
-        private void btnDoTask_Click(object sender, RoutedEventArgs e)
+        private void btnDoTask_Click(object sender , RoutedEventArgs e)
         {
-            //var buf = dgrdPoints.Items.OfType<tableParameters>().ToList();
+            if (dgrdPoints.IsVisible && dgrdPoints.Items.Count < 2 || cmbbxFunctions.IsVisible && cmbbxFunctions.SelectedValue == null || cmbbxMethods.SelectedValue == null)
+                return;
 
-            //var k = Optimizer.optimize((string)cmbbxFunctions.SelectedValue, (string)cmbbxMethods.SelectedValue, new List<Point> { new Point(0, 0) });
-            //foreach (var dts in k)
-            //{
-            //    drawing(dts);
-            //    //System.Threading.Thread.Sleep(1000);
-            //}
+            var opt = optimizers[cmbbxMethods.SelectedValue.ToString()];
+            
+            if (opt.needPoints)
+                opt.Points = (from row in dgrdPoints.Items.OfType<tablePoints>().ToList()
+                              select new Tuple<double, double>(row.X, row.Y)).ToList<Tuple<double, double>>();
+            else
+                opt.Function = functions[cmbbxFunctions.SelectedValue.ToString()];
+            if (opt.needBorders)
+            {
+                double from;
+                double to;
+                if (!double.TryParse(txtbxBorderFrom.Text, out from) || !double.TryParse(txtbxBorderTo.Text, out to))
+                    return;
+                if (from >= to)
+                    return;
+                opt.Borders = new Tuple<double, double>(from, to);
+            }
+
+            var points = opt.Optimize();
+
+            try
+            {
+                drawing((from point in points
+                         select new Point(point.Item1, point.Item2)).ToList<Point>());
+            } catch(Exception err)
+            {
+                MessageBox.Show("Add more point");
+            }
+        }
+
+        private void dgrdPoints_Loaded(object sender, RoutedEventArgs e)
+        {
+            addInfoInCmbbx();
+        }
+
+        private Visibility boolToVisibility(bool b)
+        {
+            return b ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        private void cmbbxMethods_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string methodName = e.AddedItems[0].ToString();
+            var usePoints = new List<Control> { dgrdPoints, txtbxCoordX, txtbxCoordY, btnAdd, btnDelete, lblAddX,lblAddY };
+            var useBorder = new List<Control> { txtbxBorderFrom, txtbxBorderTo, lblBorders };
+            var useFunction = new List<Control> { cmbbxFunctions, lblFunction };
+            foreach (var control in usePoints)
+                control.Visibility = boolToVisibility(optimizers[methodName].needPoints);
+            foreach (var control in useBorder)
+                control.Visibility = boolToVisibility(optimizers[methodName].needBorders);
+            foreach (var control in useFunction)
+                control.Visibility = boolToVisibility(!optimizers[methodName].needPoints);
+        }
+
+        private void btnDelete_Click(object sender, RoutedEventArgs e)
+        {
+            dgrdPoints.Items.Remove(dgrdPoints.SelectedItem);
+        }
+
+        private void btnRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            cmbbxMethods.Items.Clear();
+            cmbbxFunctions.Items.Clear();
+            functions.Clear();
+            optimizers.Clear();
+            getFunctionsOptimizers();
+            addInfoInCmbbx();
+        }
+
+        void addInfoInCmbbx()
+        {
+            foreach (var func in functions.Keys)
+                cmbbxFunctions.Items.Add(func);
+            foreach (var opt in optimizers.Keys)
+                cmbbxMethods.Items.Add(opt);
         }
     }
 }

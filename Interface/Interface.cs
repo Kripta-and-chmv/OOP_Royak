@@ -10,15 +10,18 @@ namespace Interface
     public interface IFunction
     {
         string Name { get; }
-        double Calculate();
+        double Calculate(double x);
     }
 
     public interface IOptimizator
     {
         string Name { get; }
-        IFunction Function { get; set; }
+        IFunction Function { set; }
         List<Tuple<double, double>> Optimize();
-        List<Tuple<double, double>> Points { get; set; }
+        List<Tuple<double, double>> Points { set; }
+        Tuple<double, double> Borders { set; }
+        bool needPoints { get; }
+        bool needBorders { get; }
     }
 
     public interface IResolver

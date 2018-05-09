@@ -13,9 +13,9 @@ namespace Func1
     {
         public string Name => "Func1";      
 
-        public double Calculate()
+        public double Calculate(double x)
         {
-            return 0;
+            return x * x + 3;
         }
     }
 }
